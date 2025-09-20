@@ -1,0 +1,49 @@
+SecurityAgent – Python Code Vulnerability Scanner
+
+What it does
+- Scans a Python file and quickly flags common risky patterns (no internet needed).
+- Designed to be simple, fast, and easy to read for both technical and non‑technical users.
+
+What it looks for (examples)
+- Dangerous execution: `eval`, `exec`
+- Shell commands: `os.system`, `subprocess.*(shell=True)`
+- Unsafe deserialization: `pickle.load/loads`, `yaml.load`
+- Weak cryptography: `hashlib.md5`, `hashlib.sha1`
+- Insecure HTTP: `requests(..., verify=False)`
+- Naive SQL building in `cursor.execute` (string concat/format/f-strings)
+- Hardcoded secrets (basic pattern matching)
+- Bare `except` (overly broad exception handling)
+
+Requirements
+- Windows PowerShell
+- Python 3.10+ (no extra packages required)
+
+How to run (PowerShell)
+1) Pick a Python file to scan
+2) Run the scanner:
+
+```powershell
+python d:\AgentProject\SecurityAgent\agent.py --scan-file d:\AgentProject\SecurityAgent\vuln_code\vuln_code2.py
+```
+
+You should see a report like:
+
+```
+Vulnerability Scan Report: d:\AgentProject\SecurityAgent\vuln_code\vuln_code2.py
+
+Total findings: 2
+ - High: 2  Medium: 0  Low: 0
+
+[1] HIGH PY-YAML-LOAD @ line 79
+	Message: yaml.load is unsafe; use yaml.safe_load
+	Code: obj = yaml.load(data, Loader=yaml.FullLoader)
+
+[2] HIGH PY-HARDCODED-SECRET @ line 85
+	Message: Hardcoded secret in variable 'SECRET'
+	Code: SECRET = "hardcoded_secret_key"
+```
+
+Tips
+- If a file path doesn’t exist, adjust the path and try again.
+- Results are static analysis (fast and local). Some findings may require human review.
+- For deeper analysis later, you can complement with tools like Bandit or Semgrep.
